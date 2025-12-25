@@ -1,4 +1,4 @@
-import { SplitText } from "gsap/SplitText";
+import SplitType from "split-type";
 import gsap from "gsap";
 import { lenisRef } from "../Navbar";
 
@@ -12,43 +12,51 @@ export function initialFX() {
     delay: 1,
   });
 
-  var landingText = new SplitText(
-    [".landing-info h3", ".landing-intro h2", ".landing-intro h1"],
-    {
-      type: "chars,lines",
-      linesClass: "split-line",
-    }
-  );
-  gsap.fromTo(
-    landingText.chars,
-    { opacity: 0, y: 80, filter: "blur(5px)" },
-    {
-      opacity: 1,
-      duration: 1.2,
-      filter: "blur(0px)",
-      ease: "power3.inOut",
-      y: 0,
-      stagger: 0.025,
-      delay: 0.3,
-    }
-  );
+  // For multiple selectors, SplitType accepts a selector string that matches multiple elements
+  // But SplitType constructor takes "target".
+  // Note: SplitType v0.3.4+ supports NodeList or selector string.
 
-  let TextProps = { type: "chars,lines", linesClass: "split-h2" };
+  var landingText = new SplitType(".landing-info h3, .landing-intro h2, .landing-intro h1", {
+    types: "chars,lines",
+    lineClass: "split-line",
+  });
 
-  var landingText2 = new SplitText(".landing-h2-info", TextProps);
-  gsap.fromTo(
-    landingText2.chars,
-    { opacity: 0, y: 80, filter: "blur(5px)" },
-    {
-      opacity: 1,
-      duration: 1.2,
-      filter: "blur(0px)",
-      ease: "power3.inOut",
-      y: 0,
-      stagger: 0.025,
-      delay: 0.3,
-    }
-  );
+  if (landingText.chars) {
+    gsap.fromTo(
+      landingText.chars,
+      { opacity: 0, y: 80, filter: "blur(5px)" },
+      {
+        opacity: 1,
+        duration: 1.2,
+        filter: "blur(0px)",
+        ease: "power3.inOut",
+        y: 0,
+        stagger: 0.025,
+        delay: 0.3,
+      }
+    );
+  }
+
+  // SplitType types definition issue can be bypassed or we can use "lines, words, chars" if specific enum is required.
+  // Casting to any for the options object is a quick fix if the types definition is too strict for the string.
+  let TextProps: any = { types: "chars,lines", lineClass: "split-h2" };
+
+  var landingText2 = new SplitType(".landing-h2-info", TextProps);
+  if (landingText2.chars) {
+    gsap.fromTo(
+      landingText2.chars,
+      { opacity: 0, y: 80, filter: "blur(5px)" },
+      {
+        opacity: 1,
+        duration: 1.2,
+        filter: "blur(0px)",
+        ease: "power3.inOut",
+        y: 0,
+        stagger: 0.025,
+        delay: 0.3,
+      }
+    );
+  }
 
   gsap.fromTo(
     ".landing-info-h2",
@@ -72,18 +80,20 @@ export function initialFX() {
     }
   );
 
-  var landingText3 = new SplitText(".landing-h2-info-1", TextProps);
-  var landingText4 = new SplitText(".landing-h2-1", TextProps);
-  var landingText5 = new SplitText(".landing-h2-2", TextProps);
+  var landingText3 = new SplitType(".landing-h2-info-1", TextProps);
+  var landingText4 = new SplitType(".landing-h2-1", TextProps);
+  var landingText5 = new SplitType(".landing-h2-2", TextProps);
 
   LoopText(landingText2, landingText3);
   LoopText(landingText4, landingText5);
 }
 
-function LoopText(Text1: SplitText, Text2: SplitText) {
+function LoopText(Text1: SplitType, Text2: SplitType) {
   var tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
   const delay = 4;
   const delay2 = delay * 2 + 1;
+
+  if (!Text1.chars || !Text2.chars) return;
 
   tl.fromTo(
     Text2.chars,
